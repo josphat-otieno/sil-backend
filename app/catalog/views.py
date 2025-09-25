@@ -1,17 +1,21 @@
 from decimal import Decimal
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
-from rest_framework import generics, status
+from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Category, Product
 from .serializers import ProductCreateSerializer
 
+
 class ProductCreateView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
     queryset = Product.objects.all()
     serializer_class = ProductCreateSerializer
 
 class ProductBulkCreateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def post(self, request):
         items = request.data if isinstance(request.data, list) else []
         created, errors = [], []
@@ -25,6 +29,8 @@ class ProductBulkCreateView(APIView):
         return Response({"created_ids": created, "errors": errors}, status=status.HTTP_201_CREATED)
 
 class CategoryAveragePrice(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
     def get(self, request, pk):
         cat = get_object_or_404(Category, pk=pk)
         cats = cat.get_descendants(include_self=True)

@@ -12,6 +12,8 @@ def send_customer_sms(customer, message):
         africastalking.initialize(username=username, api_key=api_key)
         sms = africastalking.SMS
         if customer.phone:
-            sms.send(message, [customer.phone], sender_id=sender)
+            response =sms.send(message, [customer.phone], sender)
+            
+            return response
     except Exception as e:
         print(f"[SMS ERROR] {e}")

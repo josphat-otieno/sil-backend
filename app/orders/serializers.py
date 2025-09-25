@@ -33,17 +33,20 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         order = Order.objects.create(**validated_data)
 
         total = 0
+        created_items = []
         for item_data in items_data:
             product = item_data["product"]
             quantity = item_data.get("quantity", 1)
             price = product.price
 
-            OrderItem.objects.create(
+            order_item=OrderItem.objects.create(
                 order=order,
                 product=product,
                 quantity=quantity,
                 price=price,
             )
+            created_items.append(order_item)
+
             total += quantity * price
 
         order.total = total
@@ -55,7 +58,6 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             send_customer_sms(order.customer, message)
 
         # send admin email
-        items = "\n".join([f"- {i.quantity} x {i.product.name} @ {i.price}" for i in order.items.all()])
-        send_admin_email(subject=f"[Orders] New Order #{order.id}", body=f"Customer: {order.customer.email}\nTotal: {order.total}\nItems:\n{items}")
+        send_admin_email(order, created_items)
 
         return order

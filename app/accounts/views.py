@@ -11,7 +11,9 @@ import requests
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from urllib.parse import urlencode
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
 
 
 class LoginView(View):
@@ -77,10 +79,18 @@ class CallbackView(View):
 
         django_login(request, user)
 
+        refresh = RefreshToken.for_user(user)
+        access = str(refresh.access_token)
+
         return JsonResponse({
             "message": "Logged in",
             "user": {"username": user.username, "email": user.email},
-            "tokens": {"id_token": id_token, "access_token": access_token},
+            # "tokens": {"id_token": id_token, "access_token": access_token},
+            "token":{
+                 "access": access,
+                    "refresh": str(refresh),
+            }
+           
         })
 
 

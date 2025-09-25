@@ -4,8 +4,7 @@ import time
 import requests
 from django.conf import settings
 from jwt import PyJWKClient, decode as jwt_decode, InvalidTokenError, ExpiredSignatureError
-from jose import jwt
-# Simple in-memory cache
+
 _cache = {
     "discovery": {"value": None, "expires": 0},
     "jwks_client": {"value": None, "expires": 0},

@@ -5,7 +5,6 @@ from catalog.models import Product
 class Order(models.Model):
     customer=models.ForeignKey(Customer, on_delete=models.CASCADE)
     created_at=models.DateTimeField(auto_now_add=True)
-    phone_number = models.CharField(max_length=255, blank=True, null=True)
     total=models.DecimalField(max_digits=12, decimal_places=2, default=0)
     
     def __str__(self):

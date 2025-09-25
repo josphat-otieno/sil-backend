@@ -46,13 +46,13 @@ class OrderCreateSerializer(serializers.ModelSerializer):
             )
             total += quantity * price
 
-        
         order.total = total
         order.save()
 
         #  send custome email
-        message = f"Hello, your order #{order.pk} of total KES{order.total} has been placed successfully."
-        send_customer_sms(order.phone_number, message)
+        if hasattr(order.customer, 'phone'):
+            message = f"Hello, your order #{order.pk} of total KES{order.total} has been placed successfully."
+            send_customer_sms(order.customer, message)
 
         # send admin email
         items = "\n".join([f"- {i.quantity} x {i.product.name} @ {i.price}" for i in order.items.all()])

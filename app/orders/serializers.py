@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.db import transaction
 from .models import Order, OrderItem, Product, Customer
+from notifications.sms import send_customer_sms
+from notifications.emailer import send_admin_email
+
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
@@ -14,7 +17,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["id", "customer", "items", "total", "created_at"]
+        fields = ["id", "customer","phone_number", "items", "total", "created_at"]
         read_only_fields = ["id", "total", "created_at"]
 
     def validate_items(self, value):
@@ -47,5 +50,12 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         order.total = total
         order.save()
 
+        #  send custome email
+        message = f"Hello, your order #{order.pk} of total KES{order.total} has been placed successfully."
+        send_customer_sms(order.phone_number, message)
+
+        # send admin email
+        items = "\n".join([f"- {i.quantity} x {i.product.name} @ {i.price}" for i in order.items.all()])
+        send_admin_email(subject=f"[Orders] New Order #{order.id}", body=f"Customer: {order.customer.email}\nTotal: {order.total}\nItems:\n{items}")
 
         return order

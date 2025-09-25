@@ -1,0 +1,33 @@
+from decimal import Decimal
+from django.db.models import Avg
+from django.shortcuts import get_object_or_404
+from rest_framework import generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from .models import Category, Product
+from .serializers import ProductCreateSerializer
+
+class ProductCreateView(generics.CreateAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductCreateSerializer
+
+class ProductBulkCreateView(APIView):
+    def post(self, request):
+        items = request.data if isinstance(request.data, list) else []
+        created, errors = [], []
+        for idx, item in enumerate(items):
+            ser = ProductCreateSerializer(data=item)
+            if ser.is_valid():
+                product = ser.save()
+                created.append(product.id)
+            else:
+                errors.append({"index": idx, "errors": ser.errors})
+        return Response({"created_ids": created, "errors": errors}, status=status.HTTP_201_CREATED)
+
+class CategoryAveragePrice(APIView):
+    def get(self, request, pk):
+        cat = get_object_or_404(Category, pk=pk)
+        cats = cat.get_descendants(include_self=True)
+        qs = Product.objects.filter(categories__in=cats).distinct()
+        avg = qs.aggregate(avg_price=Avg('price'))['avg_price'] or Decimal('0')
+        return Response({"category": cat.name, "average_price": str(avg)})

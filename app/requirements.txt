@@ -1,0 +1,16 @@
+Django
+djangorestframework
+drf-spectacular
+django-environ
+psycopg2-binary
+django-mptt
+djangorestframework-simplejwt
+gunicorn
+africastalking
+pytest
+pytest-django
+pytest-cov
+django-filter
+PyJWT 
+python-jose[cryptography]
+requests

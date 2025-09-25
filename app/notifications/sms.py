@@ -16,4 +16,5 @@ def send_customer_sms(customer, message):
             
             return response
     except Exception as e:
-        print(f"[SMS ERROR] {e}")
+        # print(f"[SMS ERROR] {e}")
+        pass

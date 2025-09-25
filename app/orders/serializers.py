@@ -17,7 +17,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ["id", "customer","phone_number", "items", "total", "created_at"]
+        fields = ["id", "customer", "items", "total", "created_at"]
         read_only_fields = ["id", "total", "created_at"]
 
     def validate_items(self, value):

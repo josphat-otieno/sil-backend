@@ -1,16 +1,23 @@
 from django.urls import reverse
+from accounts.models import User
 from rest_framework import status
 from rest_framework.test import APITestCase
-from .models import Product, Customer, Order, OrderItem, Category
+from .models import Product, Customer, Order, OrderItem
+from catalog.models import Category
 
 
 class OrderCreationTests(APITestCase):
     def setUp(self):
         # Customer
+        self.user = User.objects.create_user(
+            username="testuser", email="test@example.com", password="testpass"
+        )
+
+        # Force authenticate for test client
+        self.client.force_authenticate(user=self.user)
+
         self.customer = Customer.objects.create(
-            name="John Doe",
-            phone="0712345678",
-            email="john@example.com"
+           user=self.user, phone="0712345678", email="john@example.com"
         )
 
         # Category tree

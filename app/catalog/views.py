@@ -29,11 +29,12 @@ class ProductBulkCreateView(APIView):
         return Response({"created_ids": created, "errors": errors}, status=status.HTTP_201_CREATED)
 
 class CategoryAveragePrice(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request, pk):
         cat = get_object_or_404(Category, pk=pk)
         cats = cat.get_descendants(include_self=True)
         qs = Product.objects.filter(categories__in=cats).distinct()
         avg = qs.aggregate(avg_price=Avg('price'))['avg_price'] or Decimal('0')
+        avg = avg.quantize(Decimal("0.00"))
         return Response({"category": cat.name, "average_price": str(avg)})

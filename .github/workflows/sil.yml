@@ -39,7 +39,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build Docker image
-        run: docker build -t my-django-app .
+        run: docker build -t my-django-app/app
 
       - name: Run migrations inside Docker
         run: docker run --rm --network="host" my-django-app python manage.py migrate

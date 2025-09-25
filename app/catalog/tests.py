@@ -3,7 +3,7 @@ from django.urls import reverse
 from rest_framework.test import APIClient
 from rest_framework import status
 from decimal import Decimal
-
+from accounts.models import User
 from .models import Product, Category
 
 
@@ -11,23 +11,31 @@ class ProductCategoryTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
+        self.user = User.objects.create_user(
+            username="testuser", email="test@example.com", password="testpass"
+        )
+
+        # Force authenticate for test client
+        self.client.force_authenticate(user=self.user)
+
     def test_bulk_create_products_with_categories(self):
         """Test bulk product creation with nested categories"""
         payload = [
             {
                 "name": "Mango",
                 "price": "120.50",
-                "categories": [["Fruits", "Tropical"]],
+                "category_paths": ["Fruits", "Tropical"],
             },
             {
                 "name": "Apple",
                 "price": "80.00",
-                "categories": [["Fruits", "Temperate"]],
+                "category_paths": ["Fruits", "Temperate"],
             },
         ]
 
-        url = reverse("product-bulk-create") 
+        url = reverse("product-bulk") 
         res = self.client.post(url, payload, format="json")
+        print(res.data) 
 
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Product.objects.count(), 2)
@@ -44,7 +52,7 @@ class ProductCategoryTests(TestCase):
         p1.categories.add(tropical)
         p2.categories.add(tropical)
 
-        url = reverse("category-average-price", args=[fruits.id])
+        url = reverse("category-average", args=[fruits.id])
         res = self.client.get(url)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)

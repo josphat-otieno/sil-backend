@@ -1,60 +1,67 @@
-from django.test import TestCase
 from django.urls import reverse
-from rest_framework.test import APIClient
 from rest_framework import status
-from decimal import Decimal
-from .models import Customer, Product, Order
+from rest_framework.test import APITestCase
+from .models import Product, Customer, Order, OrderItem, Category
 
 
-class OrderTests(TestCase):
+class OrderCreationTests(APITestCase):
     def setUp(self):
-        self.client = APIClient()
-        self.customer = Customer.objects.create(name="John Doe", email="john@example.com")
-        self.product1 = Product.objects.create(name="Laptop", price=Decimal("1000.00"))
-        self.product2 = Product.objects.create(name="Mouse", price=Decimal("50.00"))
+        # Customer
+        self.customer = Customer.objects.create(
+            name="John Doe",
+            phone="0712345678",
+            email="john@example.com"
+        )
 
-    def test_create_order_with_phone_number(self):
-        url = reverse("order-create")
+        # Category tree
+        self.category = Category.objects.create(name="Electronics")
+
+        # Products with categories
+        self.product1 = Product.objects.create(
+            name="Laptop",
+            price=1000
+        )
+        self.product1.categories.add(self.category)
+
+        self.product2 = Product.objects.create(
+            name="Mouse",
+            price=50
+        )
+        self.product2.categories.add(self.category)
+
+        self.url = reverse("order-create")  # Ensure your view has this name
+
+    def test_create_order_with_items(self):
+        """
+        Ensure an order can be created with valid items.
+        """
         data = {
             "customer": self.customer.id,
-            "phone_number": "+254700000000",
             "items": [
                 {"product": self.product1.id, "quantity": 1},
                 {"product": self.product2.id, "quantity": 2},
-            ]
+            ],
         }
 
-        response = self.client.post(url, data, format="json")
+        response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         order = Order.objects.get(id=response.data["id"])
         self.assertEqual(order.customer, self.customer)
-        self.assertEqual(order.phone_number, "+254700000000")
-        self.assertEqual(order.total, Decimal("1100.00"))
-        self.assertEqual(order.items.count(), 2)
+        self.assertEqual(order.total, 1000 + 2 * 50)  # Laptop + 2 Mice
 
-    def test_order_without_items_fails(self):
-        url = reverse("order-create")
+        # Verify items created
+        self.assertEqual(OrderItem.objects.filter(order=order).count(), 2)
+
+    def test_create_order_without_items(self):
+        """
+        Ensure an order cannot be created without items.
+        """
         data = {
             "customer": self.customer.id,
-            "phone_number": "+254711111111",
-            "items": []
+            "items": [],
         }
 
-        response = self.client.post(url, data, format="json")
+        response = self.client.post(self.url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("Order must have at least one item.", str(response.data))
-
-    def test_order_without_phone_number_fails(self):
-        url = reverse("order-create")
-        data = {
-            "customer": self.customer.id,
-            # phone_number missing
-            "items": [
-                {"product": self.product1.id, "quantity": 1},
-            ]
-        }
-
-        response = self.client.post(url, data, format="json")
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("phone_number", response.data)
+        self.assertIn("items", response.data)

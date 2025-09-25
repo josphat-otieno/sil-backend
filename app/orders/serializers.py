@@ -1,38 +1,51 @@
 from rest_framework import serializers
-from decimal import Decimal
-from accounts.models import Customer
-from catalog.models import Product
-from .models import Order, OrderItem
+from django.db import transaction
+from .models import Order, OrderItem, Product, Customer
 
-class OrderItemIn(serializers.Serializer):
-    product_id = serializers.IntegerField()
-    quantity = serializers.IntegerField(min_value=1)
 
-class OrderOutItem(serializers.ModelSerializer):
+class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
-        fields = ["product","quantity","price"]
+        fields = ["product", "quantity"]  # price will be taken from product
 
-class OrderOut(serializers.ModelSerializer):
-    items = OrderOutItem(many=True, read_only=True)
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, write_only=True)
+
     class Meta:
         model = Order
-        fields = ["id","customer","created_at","total","items"]
+        fields = ["id", "customer", "items", "total", "created_at"]
+        read_only_fields = ["id", "total", "created_at"]
 
-class OrderCreateSerializer(serializers.Serializer):
-    items = OrderItemIn(many=True)
+    def validate_items(self, value):
+        """Ensure at least one order item is provided."""
+        if not value:
+            raise serializers.ValidationError("An order must have at least one item.")
+        return value
+
+    @transaction.atomic
     def create(self, validated_data):
-        user = self.context["request"].user
-        customer, _ = Customer.objects.get_or_create(user=user, defaults={"email": getattr(user,"email","") or "", "phone": ""})
-        order = Order.objects.create(customer=customer)
-        total = Decimal("0")
-        for it in validated_data["items"]:
-            p = Product.objects.get(pk=it["product_id"])
-            qty = it["quantity"]
-            OrderItem.objects.create(order=order, product=p, quantity=qty, price=p.price)
-            total += p.price * qty
+        items_data = validated_data.pop("items")
+
+        order = Order.objects.create(**validated_data)
+
+        total = 0
+        for item_data in items_data:
+            product = item_data["product"]
+            quantity = item_data.get("quantity", 1)
+            price = product.price
+
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                quantity=quantity,
+                price=price,
+            )
+            total += quantity * price
+
+        
         order.total = total
         order.save()
-        from notifications.tasks import notify_order_placed
-        notify_order_placed(order.id)
+
+
         return order

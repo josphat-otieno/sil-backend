@@ -8,13 +8,13 @@ class ProductCreateSerializer(serializers.ModelSerializer):
     category_paths = CategoryPathField(write_only=True, required=True)
     class Meta:
         model = Product
-        fields = ['id','name','price','category_paths']
+        fields = ['id','name','price','categories']
     def create(self, validated_data):
-        paths = validated_data.pop('category_paths')
+        categories = validated_data.pop('categories')
         product = Product.objects.create(**validated_data)
-        for path in paths:
+        for category in categories:
             parent=None
-            for name in path:
+            for name in category:
                 parent,_=Category.objects.get_or_create(name=name, parent=parent)
             product.categories.add(parent)
         return product

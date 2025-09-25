@@ -7,7 +7,7 @@ services:
     ports:
       - "8001:8001"
     env_file:
-      - .env.dev
+      - .env
     depends_on:
       - db
 
@@ -16,7 +16,7 @@ services:
     image: postgres:15
     restart: always
     env_file:
-      - .env.dev
+      - .env
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:

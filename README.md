@@ -34,10 +34,10 @@ This backend is built to be secure, modular, and scalable.
 
 ### Clone the repository
 
-```bash
-git clone https://github.com/josphat-otieno/sil-backend.git
-cd sil-backend
+- git clone https://github.com/josphat-otieno/sil-backend.git
+- cd sil-backend
 
+---
 
 ## Environment variables
 
@@ -72,15 +72,15 @@ cd sil-backend
 ## Authentication via Google OAuth
 ###Obtain a Google Access Token
 - Open the following `http://localhost:8001/api/auth/callback` in your browser and continue to Google.
-- YOu will be redirected back to the browser after successful authentication. Copy the access token to be use for authorizing other APIs
+- You will be redirected back to the browser after successful authentication. Copy the access token to 
+- be use for authorizing other APIs
 
 ### Access Protected Endpoints
 - curl -H "Authorization: Bearer <access_token>"   http://localhost:8001/api/products/
 
-# Testing & Coverage
+ Testing & Coverage
 - docker compose run --rm web coverage run --source='.' manage.py test
 - docker compose run --rm web coverage report -m
 - docker compose run --rm web coverage html
-
 
 ```

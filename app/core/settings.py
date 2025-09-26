@@ -6,7 +6,7 @@ env = environ.Env(DEBUG=(bool, False), ALLOWED_HOSTS=(str, "*"), TIME_ZONE=(str,
 BASE_DIR = Path(__file__).resolve().parent.parent
 environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
-SECRET_KEY = env("SECRET_KEY", default="insecure-key")
+SECRET_KEY = env("SECRET_KEY")
 DEBUG = env("DEBUG")
 ALLOWED_HOSTS = env("ALLOWED_HOSTS").split(",") if isinstance(env("ALLOWED_HOSTS"), str) else ["*"]
 
@@ -98,13 +98,5 @@ OIDC_ADMIN_EMAILS = os.getenv("OIDC_ADMIN_EMAILS", "")  # e.g. "boss@example.com
 # Discovery doc & cache TTL (seconds)
 OIDC_DISCOVERY_URL =  f"{OIDC_ISSUER}/.well-known/openid-configuration"
 OIDC_CACHE_TTL = int(os.getenv("OIDC_CACHE_TTL", "300"))
-
-KEY_CLOAK_OIDC_ISSUER=os.getenv("KEY_CLOAK_OIDC_ISSUER")
-KEY_CLOAK_OIDC_CLIENT_ID=os.getenv("KEY_CLOAK_OIDC_CLIENT_ID")
-KEY_CLOAK_OIDC_CLIENT_SECRET=os.getenv("KEY_CLOAK_OIDC_CLIENT_SECRET")
-KEY_CLOAK_OIDC_REDIRECT_URI=os.getenv("KEY_CLOAK_OIDC_REDIRECT_URI")
-
-
-
 
 

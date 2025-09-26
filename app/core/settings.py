@@ -91,9 +91,7 @@ OIDC_ISSUER = os.getenv("OIDC_ISSUER")
 OIDC_CLIENT_ID = os.getenv("OIDC_CLIENT_ID")
 OIDC_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET")
 OIDC_REDIRECT_URI = os.getenv("OIDC_REDIRECT_URI")
-
-# Comma-separated list of admin emails (quick admin mapping method)
-OIDC_ADMIN_EMAILS = os.getenv("OIDC_ADMIN_EMAILS", "")  # e.g. "boss@example.com,admin@org.com"
+OIDC_ADMIN_EMAILS = os.getenv("OIDC_ADMIN_EMAILS", "") 
 
 # Discovery doc & cache TTL (seconds)
 OIDC_DISCOVERY_URL =  f"{OIDC_ISSUER}/.well-known/openid-configuration"

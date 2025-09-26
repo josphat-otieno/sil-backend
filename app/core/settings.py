@@ -86,7 +86,7 @@ AT_USERNAME=env("AT_USERNAME", default="sandbox")
 AT_API_KEY=env("AT_API_KEY", default="")
 AT_SENDER_ID=env("AT_SENDER_ID", default="SENDER")
 
-# Google OIDC settings (set via env vars)
+# Google OIDC settings 
 OIDC_ISSUER = os.getenv("OIDC_ISSUER")
 OIDC_CLIENT_ID = os.getenv("OIDC_CLIENT_ID")
 OIDC_CLIENT_SECRET = os.getenv("OIDC_CLIENT_SECRET")

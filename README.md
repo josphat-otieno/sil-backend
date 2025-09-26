@@ -85,109 +85,109 @@ This backend is built to be secure, modular, and scalable.
 
 # API Documentation
 ## Customers
-- Update Phone Number
-- Endpoint: PPOST /api/auth/update-phone/
 
 
-Update Phone Number
-Endpoint: POST /api/auth/update-phone/
-Auth: Bearer Token required
-Payload:
-{
-  "phone": "254712345678"
-}
+```sh
+    - Update Phone Number
+    - Endpoint: PPOST /api/auth/update-phone/
 
-
-Success Response (200):
-{
-  "id": 1,
-  "email": "test@example.com",
-  "phone": "254712345678"
-}
-
-Error Response (400):
-
-{
-  "phone": ["Enter a valid phone number."]
-}
-
-Products
-Bulk Create Products with Categories
-
-Endpoint: POST /api/catalog/products/bulk-create/
-Payload:
-[
-  {
-    "name": "Mango",
-    "price": "120.50",
-    "category_paths": ["Fruits", "Tropical"]
-  },
-  {
-    "name": "Apple",
-    "price": "80.00",
-    "category_paths": ["Fruits", "Temperate"]
-  }
-]
-
-Response (201):
-{
-  "categories": [
+    Update Phone Number
+    Endpoint: POST /api/auth/update-phone/
+    Auth: Bearer Token required
+    Payload:
     {
-      "id": 5,
-      "name": "Tropical",
-      "products": [
-        { "id": 10, "name": "Mango" }
-      ]
-    },
-    {
-      "id": 6,
-      "name": "Temperate",
-      "products": [
-        { "id": 11, "name": "Apple" }
-      ]
+    "phone": "254712345678"
     }
-  ],
-  "errors": []
-}
-
-Categories
-List Categories
-Endpoint: GET /api/categories/
-Response:
-
-[
-  { "id": 5, "name": "Tropical" },
-  { "id": 6, "name": "Temperate" }
-]
-Orders
-Create Order
-
-Endpoint: POST /api/orders/orders/
-
-Auth: Bearer Token required
-
-Payload:
-
-{
-  "customer_id": 1,
-  "items": [
-    { "product_id": 10, "quantity": 2 },
-    { "product_id": 11, "quantity": 1 }
-  ]
-}
 
 
-Response (201):
+    Success Response (200):
+    {
+    "id": 1,
+    "email": "test@example.com",
+    "phone": "254712345678"
+    }
 
-{
-  "id": 3,
-  "customer": 1,
-  "total": "321.00",
-  "items": [
-    { "product": "Mango", "quantity": 2, "total": "241.00" },
-    { "product": "Apple", "quantity": 1, "total": "80.00" }
-  ]
-}
+    Error Response (400):
+
+    {
+    "phone": ["Enter a valid phone number."]
+    }
+
+
+    Products
+    Bulk Create Products with Categories
+    Endpoint: POST /api/catalog/products/bulk-create/
+    Payload:
+    [
+        {
+            "name": "Mango",
+            "price": "120.50",
+            "category_paths": ["Fruits", "Tropical"]
+        },
+        {
+            "name": "Apple",
+            "price": "80.00",
+            "category_paths": ["Fruits", "Temperate"]
+        }
+    ]
+
+    Response (201):
+    {
+    "categories": [
+        {
+        "id": 5,
+        "name": "Tropical",
+        "products": [
+            { "id": 10, "name": "Mango" }
+        ]
+        },
+        {
+        "id": 6,
+        "name": "Temperate",
+        "products": [
+            { "id": 11, "name": "Apple" }
+        ]
+        }
+    ],
+    "errors": []
+    }
+
+
+    Categories
+    List Categories
+    Endpoint: GET /api/categories/
+    Response:
+
+    [
+        { "id": 5, "name": "Tropical" },
+        { "id": 6, "name": "Temperate" }
+    ]
+
+    Orders
+    Create Order
+
+    Endpoint: POST /api/orders/orders/
+    Auth: Bearer Token required
+    Payload:
+    {
+        "customer_id": 1,
+        "items": [
+            { "product_id": 10, "quantity": 2 },
+            { "product_id": 11, "quantity": 1 }
+        ]
+    }
+
+
+    Response (201):
+        {
+        "id": 3,
+        "customer": 1,
+        "total": "321.00",
+        "items": [
+            { "product": "Mango", "quantity": 2, "total": "241.00" },
+            { "product": "Apple", "quantity": 1, "total": "80.00" }
+        ]
+    }
 
 
 ```

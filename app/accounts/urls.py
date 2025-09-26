@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import LoginView, CallbackView
+from .views import LoginView, CallbackView, UpdateCustomerPhoneAPIView
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -10,5 +10,6 @@ urlpatterns=[
     path("callback/", CallbackView.as_view(), name="oidc_callback"),
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path('update-phone/', UpdateCustomerPhoneAPIView.as_view(), name='update-phone')
    
 ]

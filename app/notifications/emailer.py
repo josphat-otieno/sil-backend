@@ -13,11 +13,15 @@ def send_admin_email(order, items):
     for item in items:
         body_lines.append(f"- {item.product.name} x {item.quantity} @ {item.price}")
     body = "\n".join(body_lines)
+    try:
 
-    send_mail(
-        subject,
-        body,
-        settings.DEFAULT_FROM_EMAIL,
-        [settings.ADMIN_EMAIL],
-        fail_silently=False,
-    )
+        send_mail(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.ADMIN_EMAIL],
+            fail_silently=False,
+        )
+
+    except Exception as e:
+        pass

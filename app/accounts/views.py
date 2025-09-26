@@ -14,7 +14,6 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status, permissions
 from django.shortcuts import get_object_or_404
-from .serializers import UpdateCustomerPhoneSerializer
 
 
 
@@ -88,7 +87,7 @@ class CallbackView(View):
         return JsonResponse({
             "message": "Logged in",
             "user": {"username": user.username, "email": user.email},
-            # "tokens": {"id_token": id_token, "access_token": access_token},
+            "customer_id": customer.id,
             "token":{
                  "access": access,
                     "refresh": str(refresh),
@@ -98,19 +97,20 @@ class CallbackView(View):
 
 
 
-class UpdateCustomerPhoneAPIView(APIView):
+class UpdateCustomerPhoneView(View):
     permission_classes = [permissions.IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        
+        new_phone = request.POST.get("phone")
+        
+        # Check if the customer exists
+        try:
+            customer = Customer.objects.get(user=request.user)
+        except Customer.DoesNotExist:
+            return JsonResponse({"error": "Customer not found"}, status=404)
+        
+        # Update the phone number
+        customer.phone = new_phone
+        customer.save()
 
-    def put(self, request):
-        customer = Customer.objects.filter(user=request.user).first()
-        print(request.data)
-        if not customer:
-            return Response({"detail": "Customer not found"}, status=status.HTTP_404_NOT_FOUND)
-
-        serializer = UpdateCustomerPhoneSerializer(customer, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
+        return JsonResponse({"message": "Phone number updated successfully"}, status=200)

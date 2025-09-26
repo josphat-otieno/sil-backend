@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 import environ
 from pathlib import Path
@@ -72,14 +73,25 @@ REST_FRAMEWORK = {
 }
 
 
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=7),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+}
 
-# Email (MailHog)
-EMAIL_BACKEND="django.core.mail.backends.smtp.EmailBackend"
-EMAIL_HOST="mailhog"
-EMAIL_PORT=1025
-EMAIL_USE_TLS=False
+
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+
+# SMTP server settings (example: Gmail)
+EMAIL_HOST="smtp.gmail.com"
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_USE_SSL=False 
+EMAIL_HOST_USER="josephatotieno92@gmail.com"
+EMAIL_HOST_PASSWORD="your_ app_password"
 DEFAULT_FROM_EMAIL="noreply@sil.com"
 ADMIN_EMAIL=env("ADMIN_EMAIL", default="admin@example.com")
+
 
 # Africa's Talking
 AT_USERNAME=env("AT_USERNAME", default="sandbox")

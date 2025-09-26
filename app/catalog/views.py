@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from .models import Category, Product
 from .serializers import ProductCreateSerializer
+from collections import defaultdict
 
 
 class ProductCreateView(generics.CreateAPIView):
@@ -13,23 +14,44 @@ class ProductCreateView(generics.CreateAPIView):
     queryset = Product.objects.all()
     serializer_class = ProductCreateSerializer
 
-class ProductBulkCreateView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
 
+
+class ProductBulkCreateView(APIView):
     def post(self, request):
         items = request.data if isinstance(request.data, list) else []
-        created, errors = [], []
+        created_products, errors = [], []
+
         for idx, item in enumerate(items):
             ser = ProductCreateSerializer(data=item)
             if ser.is_valid():
                 product = ser.save()
-                created.append(product.id)
+                created_products.append(product)
             else:
                 errors.append({"index": idx, "errors": ser.errors})
-        return Response({"created_ids": created, "errors": errors}, status=status.HTTP_201_CREATED)
+
+        # Group products by categories (ManyToMany support)
+        grouped = defaultdict(lambda: {"id": None, "name": "", "products": []})
+
+        for product in created_products:
+            for category in product.categories.all():
+                if grouped[category.id]["id"] is None:
+                    grouped[category.id]["id"] = category.id
+                    grouped[category.id]["name"] = category.name
+                grouped[category.id]["products"].append({
+                    "id": product.id,
+                    "name": product.name,
+                })
+
+        response_data = {
+            "categories": list(grouped.values()),
+            "errors": errors,
+        }
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
+
 
 class CategoryAveragePrice(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, pk):
         cat = get_object_or_404(Category, pk=pk)

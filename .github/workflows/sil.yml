@@ -24,13 +24,27 @@ jobs:
           echo "POSTGRES_HOST=db" >> .env
           echo "POSTGRES_PORT=5432" >> .env
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
+
       - name: Shut down any existing containers & remove volumes
         run: docker compose --env-file .env down -v
       - name: Build and run services
         run: docker compose --env-file .env up -d --build
 
+      - name: Wait for Postgres
+        run: |
+          for i in {1..30}; do
+            docker compose --env-file .env exec db pg_isready -U ${{ secrets.POSTGRES_USER }} && break
+            sleep 1
+          done
+
+      - name: Reset database
+        run: |
+          docker compose --env-file .env run --rm db psql -U ${{ secrets.POSTGRES_USER }} -c "DROP DATABASE IF EXISTS ${{ secrets.POSTGRES_DB }};"
+          docker compose --env-file .env run --rm db psql -U ${{ secrets.POSTGRES_USER }} -c "CREATE DATABASE ${{ secrets.POSTGRES_DB }};"
+
+
       - name: Run migrations
-        run: docker compose --env-file .env run --rm web python manage.py migrate
+        run: docker compose --env-file .env run --rm web python manage.py migrate --noinput
 
       - name: Run tests with coverage
         run: |

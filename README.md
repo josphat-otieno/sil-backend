@@ -101,11 +101,7 @@ This backend is built to be secure, modular, and scalable.
 
 
     Success Response (200):
-    {
-    "id": 1,
-    "email": "test@example.com",
-    "phone": "254712345678"
-    }
+   {"message": "Phone number updated successfully"}
 
     Error Response (400):
 

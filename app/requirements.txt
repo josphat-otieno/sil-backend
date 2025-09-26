@@ -15,3 +15,5 @@ django-filter
 PyJWT 
 python-jose[cryptography]
 requests
+mkdocs
+mkdocs-material

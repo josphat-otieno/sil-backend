@@ -25,13 +25,10 @@ jobs:
           echo "POSTGRES_PORT=5432" >> .env
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
       - name: Build and run services
-        run: docker compose up -d --build
+        run: docker compose --env-file .env up -d --build
 
       - name: Run migrations
-        run: docker compose run --rm web python manage.py migrate
+        run: docker compose --env-file .env run --rm web python manage.py migrate
 
       - name: Run tests
-        run: docker compose run --rm web python manage.py test
-
-      - name: Shut down
-        run: docker compose down
+        run: docker compose --env-file .env run --rm web python manage.py test

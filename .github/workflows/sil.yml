@@ -27,21 +27,32 @@ jobs:
 
       - name: Shut down any existing containers & remove volumes
         run: docker compose --env-file .env down -v
+
       - name: Build and run services
         run: docker compose --env-file .env up -d --build
 
       - name: Wait for Postgres
         run: |
+          echo "Waiting for PostgreSQL to be ready..."
           for i in {1..30}; do
-            docker compose --env-file .env exec db pg_isready -U ${{ secrets.POSTGRES_USER }} && break
-            sleep 1
+            if docker compose --env-file .env exec db pg_isready -h localhost -U ${{ secrets.POSTGRES_USER }}; then
+              echo "PostgreSQL is ready!"
+              break
+            fi
+            echo "Waiting for PostgreSQL... ($i/30)"
+            sleep 2
           done
 
-      - name: Reset database
+      - name: Check database connection
         run: |
-          docker compose --env-file .env run --rm db psql -U ${{ secrets.POSTGRES_USER }} -c "DROP DATABASE IF EXISTS ${{ secrets.POSTGRES_DB }};"
-          docker compose --env-file .env run --rm db psql -U ${{ secrets.POSTGRES_USER }} -c "CREATE DATABASE ${{ secrets.POSTGRES_DB }};"
+          echo "Testing database connection..."
+          docker compose --env-file .env exec db psql -h localhost -U ${{ secrets.POSTGRES_USER }} -d postgres -c "SELECT version();"
 
+      - name: Reset database (if needed)
+        run: |
+          echo "Recreating database..."
+          docker compose --env-file .env exec db psql -h localhost -U ${{ secrets.POSTGRES_USER }} -d postgres -c "DROP DATABASE IF EXISTS ${{ secrets.POSTGRES_DB }};"
+          docker compose --env-file .env exec db psql -h localhost -U ${{ secrets.POSTGRES_USER }} -d postgres -c "CREATE DATABASE ${{ secrets.POSTGRES_DB }};"
 
       - name: Run migrations
         run: docker compose --env-file .env run --rm web python manage.py migrate --noinput
@@ -60,7 +71,6 @@ jobs:
 
       - name: Shut down containers
         run: docker compose --env-file .env down
-
 
   docker:
     needs: test

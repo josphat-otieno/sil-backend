@@ -23,7 +23,7 @@ jobs:
           echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
           echo "POSTGRES_HOST=db" >> .env
           echo "POSTGRES_PORT=5432" >> .env
-          echo "DJANGO_SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}" >> .env
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> .env
 
       - name: Build and run services
         run: docker compose up -d --build

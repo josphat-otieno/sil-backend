@@ -30,5 +30,17 @@ jobs:
       - name: Run migrations
         run: docker compose --env-file .env run --rm web python manage.py migrate
 
-      - name: Run tests
-        run: docker compose --env-file .env run --rm web python manage.py test
+      - name: Run tests with coverage
+        run: |
+          docker compose --env-file .env run --rm web coverage run --source='.' manage.py test
+          docker compose --env-file .env run --rm web coverage report -m
+          docker compose --env-file .env run --rm web coverage html
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov
+
+      - name: Shut down containers
+        run: docker compose --env-file .env down
